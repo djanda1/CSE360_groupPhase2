@@ -59,6 +59,7 @@ public class UserManagementApp extends Application {
 				oneTimeReset = generateRandomPassword(8);
 				System.out.print("Reset one-time password is: " + oneTimeReset + "\nThis password expires 12/31/2024");
 				resetUser(stage, name);
+				save();
 			}
 			else
 				showAlert("Error", "This username does not exist, please enter a valid account username");
@@ -205,6 +206,7 @@ public class UserManagementApp extends Application {
 		User user = users.get(name);
 		if (user != null) {
 			users.remove(name);
+			save();
 			showAlert("Success", "Account has been deleted");
 		} else {
 			showAlert("Error", "This email does not exist, please enter a valid account email");
@@ -226,7 +228,6 @@ public class UserManagementApp extends Application {
 	}
 
 	private void showLoginPage(Stage stage) {		//first page, will be login page with buttons to use one time password
-		load();
 		GridPane grid = new GridPane();
 		grid.setPadding(new Insets(10, 10, 10, 10));
 		grid.setVgap(8);
@@ -255,6 +256,8 @@ public class UserManagementApp extends Application {
 		Scene scene = new Scene(grid, 300, 200);
 		stage.setScene(scene);
 		stage.show();
+		if(users.size() == 0)
+			load();
 		if (users.size() == 0) {
 			oneTimePassword = generateRandomPassword(8);
 			System.out.println("Welcome Admin. One time password is : " + oneTimePassword + 
@@ -306,7 +309,7 @@ public class UserManagementApp extends Application {
 		});
 		
 		layout.getChildren().addAll(prompt, oneTimeInput, enter);
-		Scene scene = new Scene(layout, 200, 200);
+		Scene scene = new Scene(layout, 300, 300);
 		stage.setScene(scene);
 	}
 	
@@ -558,9 +561,6 @@ public class UserManagementApp extends Application {
 		        System.out.println("File created: " + myObj.getName());
 		      } 
 		      
-		      else {
-		        System.out.println("File already exists.");
-		      }
 		      FileWriter writer = new FileWriter("data.txt");
 		      BufferedWriter myWriter = new BufferedWriter(writer);
 		      myWriter.write("users");
@@ -585,6 +585,11 @@ public class UserManagementApp extends Application {
 		    	  myWriter.write(temp.getLastName());
 		    	  myWriter.newLine();
 		    	  myWriter.write(temp.getDisplayName());
+		    	  myWriter.newLine();
+		    	  if(temp.isSetupComplete())
+		    		  myWriter.write("1");
+		    	  else
+		    		  myWriter.write("0");
 		    	  myWriter.newLine();
 		      }
 		      myWriter.write("articles");
@@ -611,12 +616,11 @@ public class UserManagementApp extends Application {
 		        return true;
 		      } else {
 		    	  
-		        System.out.println("File already exists.");
+		        //System.out.println("File already exists.");
 		        Scanner reader = new Scanner(myObj);		        
 		        String line;
-		        line = reader.nextLine();
-		        
-		        
+		        if(reader.hasNextLine())
+		        	line = reader.nextLine();
 		        while(reader.hasNextLine())
 		        {
 		        	line = reader.nextLine();
@@ -639,13 +643,20 @@ public class UserManagementApp extends Application {
 		        	String ln = line;
 		        	line = reader.nextLine();
 		        	String pn = line;
+		        	line = reader.nextLine();
+		        	int i = Integer.parseInt(line);
+		        	boolean setUp;
+		        	if(i == 1)
+		        		setUp = true;
+		        	else
+		        		setUp = false;
 		        	User newUser = new User(un, p, ro);
 		        	newUser.setEmail(e);
 		        	newUser.setFirstName(fn);
 		        	newUser.setLastName(ln);
 		        	newUser.setMiddleName(mn);
 		        	newUser.setPreferredName(pn);
-		        	newUser.setSetupComplete(true);
+		        	newUser.setSetupComplete(setUp);
 		        	users.put(un, newUser);
 		        	
 		        }
