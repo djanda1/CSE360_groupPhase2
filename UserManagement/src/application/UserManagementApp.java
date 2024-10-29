@@ -126,7 +126,10 @@ public class UserManagementApp extends Application {
 		viewArticleInput.setPromptText("Enter the title of the article you wish to view");
 
 		//button actions
-		goBack.setOnAction(e ->showAdminPage(stage, "Admin"));
+		if(currentUser.getRoles().get(0).equals("Admin"))
+			goBack.setOnAction(e ->showAdminPage(stage, "admin"));
+		else if(currentUser.getRoles().get(0).equals("Instructor"))
+			goBack.setOnAction(e ->showHomePageInstructor(stage, "Instructor"));
 		viewArticle.setOnAction(e -> {
 			String name = viewArticle.getText();
 			if(!name.isEmpty())
@@ -515,15 +518,17 @@ public class UserManagementApp extends Application {
 		save();
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20, 20, 20, 20));
-
+		Button articles = new Button("Articles");
+		
 		Label welcomeLabel = new Label("Welcome, " + currentUser.getDisplayName() + " (" + role + ")");
 		Button logoutButton = new Button("Log Out");
 		logoutButton.setOnAction(e -> {
 			currentUser = null;
 			showLoginPage(stage);
 		});
+		articles.setOnAction(e -> articleHomePage(stage));
 
-		layout.getChildren().addAll(welcomeLabel, logoutButton);
+		layout.getChildren().addAll(welcomeLabel, articles, logoutButton);
 		Scene scene = new Scene(layout, 300, 200);
 		stage.setScene(scene);
 	}
