@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.*;
+import java.io.*;
 
 public class UserManagementApp extends Application {
 	private Map<String, User> users = new HashMap<>();
@@ -31,6 +32,7 @@ public class UserManagementApp extends Application {
 	}
 
 	private void showAdminPage(Stage stage, String user) {		//show admin main home page
+		save();
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20,20,20,20));
 		
@@ -224,6 +226,7 @@ public class UserManagementApp extends Application {
 	}
 
 	private void showLoginPage(Stage stage) {		//first page, will be login page with buttons to use one time password
+		load();
 		GridPane grid = new GridPane();
 		grid.setPadding(new Insets(10, 10, 10, 10));
 		grid.setVgap(8);
@@ -506,6 +509,7 @@ public class UserManagementApp extends Application {
 	}
 	
 	private void showHomePageInstructor(Stage stage, String role) {		//home page for instructor role
+		save();
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20, 20, 20, 20));
 
@@ -522,6 +526,7 @@ public class UserManagementApp extends Application {
 	}
 	
 	private void showHomePageStudent(Stage stage, String role) {		//role page for student role
+		save();
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20, 20, 20, 20));
 
@@ -543,6 +548,120 @@ public class UserManagementApp extends Application {
 		alert.setHeaderText(null);
 		alert.setContentText(message);
 		alert.showAndWait();
+	}
+	
+	private void save()			//save database
+	{
+		try {
+		      File myObj = new File("data.txt");
+		      if (myObj.createNewFile()) {
+		        System.out.println("File created: " + myObj.getName());
+		      } 
+		      
+		      else {
+		        System.out.println("File already exists.");
+		      }
+		      FileWriter writer = new FileWriter("data.txt");
+		      BufferedWriter myWriter = new BufferedWriter(writer);
+		      myWriter.write("users");
+		      myWriter.newLine();
+		      User temp;
+		      //Article tempA;
+		      for(Map.Entry<String, User> entry : users.entrySet())		//write the users into data
+		      {
+		    	  temp = entry.getValue();
+		    	  myWriter.write(temp.getUsername());
+		    	  myWriter.newLine();
+		    	  myWriter.write(temp.getPassword());
+		    	  myWriter.newLine();
+		    	  myWriter.write(temp.getEmail());
+		    	  myWriter.newLine();
+		    	  myWriter.write(String.join(":", temp.getRoles()));
+		    	  myWriter.newLine();
+		    	  myWriter.write(temp.getFirstName());
+		    	  myWriter.newLine();
+		    	  myWriter.write(temp.getMiddleName());
+		    	  myWriter.newLine();
+		    	  myWriter.write(temp.getLastName());
+		    	  myWriter.newLine();
+		    	  myWriter.write(temp.getDisplayName());
+		    	  myWriter.newLine();
+		      }
+		      myWriter.write("articles");
+		      myWriter.newLine();
+		      /*
+		      for(Map.Entry<String, Articles> entry : articles.entrySet())			//write articles into data
+		      {
+		    	  tempA = entry.getValue();
+		    	  
+		      }*/
+		      myWriter.close();
+		    } catch (IOException e) {
+		      System.out.println("An error occurred.");
+		      e.printStackTrace();
+		    }
+	}
+	
+	private boolean load()			//load database
+	{
+		try {
+		      File myObj = new File("data.txt");
+		      if (myObj.createNewFile()) {
+		        System.out.println("File created: " + myObj.getName());
+		        return true;
+		      } else {
+		    	  
+		        System.out.println("File already exists.");
+		        Scanner reader = new Scanner(myObj);		        
+		        String line;
+		        line = reader.nextLine();
+		        
+		        
+		        while(reader.hasNextLine())
+		        {
+		        	line = reader.nextLine();
+		        	if(line.equals("articles"))
+		        		break;
+		        	String un = line;
+		        	line = reader.nextLine();
+		        	String p = line;
+		        	line = reader.nextLine();
+		        	String e = line;
+		        	line = reader.nextLine();
+		        	String rol = line;
+		        	String[] r = rol.split(":");
+		        	List<String> ro = Arrays.asList(r);
+		        	line = reader.nextLine();
+		        	String fn = line;
+		        	line = reader.nextLine();
+		        	String mn = line;
+		        	line = reader.nextLine();
+		        	String ln = line;
+		        	line = reader.nextLine();
+		        	String pn = line;
+		        	User newUser = new User(un, p, ro);
+		        	newUser.setEmail(e);
+		        	newUser.setFirstName(fn);
+		        	newUser.setLastName(ln);
+		        	newUser.setMiddleName(mn);
+		        	newUser.setPreferredName(pn);
+		        	newUser.setSetupComplete(true);
+		        	users.put(un, newUser);
+		        	
+		        }
+		        while(reader.hasNextLine())
+		        {
+		        	
+		        }
+		        reader.close();
+		        return false;
+		        
+		      }
+		    } catch (IOException e) {
+		      System.out.println("An error occurred.");
+		      e.printStackTrace();
+		    }
+		return true;
 	}
 
 
