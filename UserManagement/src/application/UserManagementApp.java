@@ -29,37 +29,6 @@ public class UserManagementApp extends Application {
 		primaryStage.setTitle("User Management Application");
 		showLoginPage(primaryStage);
 	}
-	
-	private void showAdminCreationPage(Stage stage, List<String> roles) {		//creating admin account
-		VBox layout = new VBox(10);
-		layout.setPadding(new Insets(20, 20, 20, 20));
-
-		Label usernameLabel = new Label("Admin Username:");
-		TextField usernameInput = new TextField();
-
-		Label passwordLabel = new Label("Password:");
-		PasswordField passwordInput = new PasswordField();
-
-		Label confirmPasswordLabel = new Label("Confirm Password:");
-		PasswordField confirmPasswordInput = new PasswordField();
-
-		Button createAccountButton = new Button("Create Admin Account");
-		createAccountButton.setOnAction(e -> {
-			if (passwordInput.getText().equals(confirmPasswordInput.getText())) {
-				User newUser = new User(usernameInput.getText(), passwordInput.getText(), roles);
-				users.put(usernameInput.getText(), newUser);
-				showLoginPage(stage);
-			} else {
-				showAlert("Password Mismatch", "Passwords do not match.");
-			}
-		});
-
-		layout.getChildren().addAll(usernameLabel, usernameInput, passwordLabel, passwordInput, confirmPasswordLabel,
-				confirmPasswordInput, createAccountButton);
-		Scene scene = new Scene(layout, 300, 300);
-		stage.setScene(scene);
-		stage.setTitle("Admin Home Page");
-	}
 
 	private void showAdminPage(Stage stage, String user) {		//show admin main home page
 		VBox layout = new VBox(10);
@@ -678,3 +647,4 @@ public class UserManagementApp extends Application {
 			return userString;
 		}
 	}
+}
