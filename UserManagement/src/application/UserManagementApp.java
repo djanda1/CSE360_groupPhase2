@@ -81,15 +81,16 @@ public class UserManagementApp extends Application {
 		
 		//button actions
 		resetUser.setOnAction(e -> {
-			String email = resetUserInput.getText();
-			if(!email.isEmpty())
+			String name = resetUserInput.getText();
+			User resetUsername = users.get(name);
+			if(resetUsername != null)
 			{
 				oneTimeReset = generateRandomPassword(8);
 				System.out.print("Reset one-time password is: " + oneTimeReset + "\nThis password expires 12/31/2024");
-				resetUser(stage, email);
+				resetUser(stage, name);
 			}
 			else
-				showAlert("Error", "Please enter the email you would like to reset");
+				showAlert("Error", "This username does not exist, please enter a valid account username");
 		});
 		logout.setOnAction(e -> showLoginPage(stage));		//handles logout
 		generatePasswordStudent.setOnAction(e -> {		//handle generating password
@@ -108,17 +109,28 @@ public class UserManagementApp extends Application {
 			oneTimeStudentIns = generateRandomPassword(8);
 			System.out.print("Invite code for both student and instructor role: " + oneTimeInstructor + "\nThis code expires 12/31/2024\n");
 		});
-		articles.setOnAction(e-> articlePage(stage));
+		articles.setOnAction(e-> articleHomePage(stage));
 		
 		deleteAccountInput.setPromptText("Enter the username of the account desired to be deleted");
-		deleteUsers.setOnAction(e -> confirmDelete(stage,deleteAccountInput.getText(),user));	//Show the confirmation page
+		
+		deleteUsers.setOnAction(e -> {
+			
+			String username = deleteAccountInput.getText();
+			User deleteUser = users.get(username);
+			if (deleteUser != null) {
+				confirmDelete(stage,deleteAccountInput.getText(),username);	//Show the confirmation page
+			} else {
+				showAlert("Error", "This username does not exist, please enter a valid account username");
+			}
+		});
+		
 		layout.getChildren().addAll(listUsers, deleteAccountInput, deleteUsers, resetUserInput, resetUser, generatePasswordStudent, generatePasswordInstructor, generatePasswordAdmin, generatePasswordStuIns,articles,logout);
 		Scene scene = new Scene(layout, 500, 500);
 		stage.setScene(scene);
 		listUsers.setOnAction(e -> listUsers(stage));
 	}
 	
-	private void articlePage(Stage stage)	{
+	private void articleHomePage(Stage stage)	{
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20,20,20,20));
 		
@@ -129,24 +141,50 @@ public class UserManagementApp extends Application {
 		Button createArticle = new Button("Create");
 		Button deleteArticle = new Button("Delete");
 		Button viewArticle = new Button("View Article");
-		Button updateArticle = new Button("Update Article");
 		Button goBack = new Button("Go Back");
 		
 		//text fields for buttons
 		TextField createArticleInput = new TextField();
 		TextField deleteArticleInput = new TextField();
 		TextField viewArticleInput = new TextField();
-		TextField updateArticleInput = new TextField();
 		
 		//Set prompts for text fields
 		createArticleInput.setPromptText("Enter the title of the article you wish to create");
 		deleteArticleInput.setPromptText("Enter the title of the article you wish to delete");
 		viewArticleInput.setPromptText("Enter the title of the article you wish to view");
-		updateArticleInput.setPromptText("Enter the title of the article you wish to update");
+
 		//button actions
 		goBack.setOnAction(e ->showAdminPage(stage, "Admin"));
+		viewArticle.setOnAction(e -> {
+			String name = viewArticle.getText();
+			if(!name.isEmpty())
+			{
+				articleWindow(stage, name);
+			}
+			else
+				showAlert("Error", "Please enter the email you would like to reset");
+		});
 		
-		layout.getChildren().addAll(action,listArticles,createArticleInput,createArticle,deleteArticleInput,deleteArticle,viewArticleInput,viewArticle,updateArticleInput,updateArticle,goBack);
+		layout.getChildren().addAll(action,listArticles,createArticleInput,createArticle,deleteArticleInput,deleteArticle,viewArticleInput,viewArticle,goBack);
+		Scene scene = new Scene(layout, 500, 500);
+		stage.setScene(scene);
+		stage.show();
+	}
+	
+	private void articleWindow(Stage stage, String ArticleName)	{
+		
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20,20,20,20));
+		
+		//text field for article text
+		TextField article = new TextField();
+		article.setPromptText("Blah blah blah blah");
+		//buttons
+		Button goBack = new Button("Go Back");
+		Button updateArticle = new Button("Update Article");
+		//button actions
+		goBack.setOnAction(e -> articleHomePage(stage));
+		layout.getChildren().addAll(article, goBack, updateArticle);
 		Scene scene = new Scene(layout, 500, 500);
 		stage.setScene(scene);
 		stage.show();
@@ -166,37 +204,36 @@ public class UserManagementApp extends Application {
 		
 	}
 	
-	private void confirmDelete(Stage stage, String email, String admin) {			//confirmation of deletion page
-		GridPane grid = new GridPane();
-		grid.setPadding(new Insets(10, 10, 10, 10));
-		grid.setVgap(8);
-		grid.setHgap(8);
+	private void confirmDelete(Stage stage, String name, String admin) {			//confirmation of deletion page
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20,20,20,20));
 		
 		Label usernameLabel = new Label("Are you sure you would like to\ndelete this account?");
-		GridPane.setConstraints(usernameLabel, 0, 0);
-		
+		//buttons
 		Button confirmDelete = new Button("Delete");
-		GridPane.setConstraints(confirmDelete, 0, 1);
+		Button goBack = new Button("Go Back");
+		//button actions
+		goBack.setOnAction(e ->showAdminPage(stage, "Admin"));
 		confirmDelete.setOnAction(e -> {				//handles delete account button
-			if (!email.isEmpty()) {
-				deleteAccount(stage, email, admin);
+			if (!name.isEmpty()) {
+				deleteAccount(stage, name, admin);
 			} else {
 				showAlert("Error", "Please enter an account username");
 			}
 		});
 		
-		grid.getChildren().addAll(usernameLabel, confirmDelete);
+		layout.getChildren().addAll(usernameLabel, confirmDelete,goBack);
 		
-		Scene scene = new Scene(grid, 300, 200);
+		Scene scene = new Scene(layout, 300, 200);
 		stage.setScene(scene);
 		stage.show();
 		
 	}
 	
-	private void deleteAccount(Stage stage, String email, String admin) {			//delete user from list method
-		User user = users.get(email);
+	private void deleteAccount(Stage stage, String name, String admin) {			//delete user from list method
+		User user = users.get(name);
 		if (user != null) {
-			users.remove(email);
+			users.remove(name);
 			showAlert("Success", "Account has been deleted");
 		} else {
 			showAlert("Error", "This email does not exist, please enter a valid account email");
@@ -213,7 +250,7 @@ public class UserManagementApp extends Application {
 		}
 		else
 		{
-			showAlert("Error", "Email does not exist");
+			showAlert("Error", "Username does not exist");
 		}
 	}
 
@@ -641,4 +678,3 @@ public class UserManagementApp extends Application {
 			return userString;
 		}
 	}
-}
