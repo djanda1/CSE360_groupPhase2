@@ -1,11 +1,12 @@
 package application;
+
 public class Articles {
 	private String title, description, keywords, authors, body, references, group;
+	private int id;
 	
 	//default constructor
 	public Articles()
 	{
-		
 	}
 	
 	//overloaded constructor
@@ -14,11 +15,15 @@ public class Articles {
 		this.title = title;
 		this.authors = authors;
 		this.body = body;
-		this.authors = authors;
 		this.keywords = keywords;
 		this.description = description;
 		this.references = references;
-		int id = Integer.parseInt(title);
+		id = 0;
+		for(int i = 0; i < title.length(); i++)
+		{
+			char ch = title.charAt(i);
+			this.id += (int)ch;
+		}
 		this.group = group;
 	}
 	
@@ -52,6 +57,36 @@ public class Articles {
 	public String getReferences()
 	{
 		return this.references;
+	}
+	
+	public int getId()
+	{
+		return this.id;
+	}
+	
+	public String getGroup()
+	{
+		return this.group;
+	}
+	
+	public String toString()
+	{
+		return "Title: " + this.title + "\n"
+				+ "Authors: " + this.authors + "\n"
+				+ "Description: " + this.description + "\n"
+				+ "Group: " + this.group + "\n"
+				+ "ID: " + this.id + "\n";
+	}
+	
+	public String toStringFull()
+	{
+		return "Title: " + this.title + "\n"
+				+ "Authors: " + this.authors + "\n"
+				+ "Description: " + this.description + "\n"
+				+ "Keywords: " + this.keywords + "\n" 
+				+ "Body: " + this.body + "\n"
+				+ "References: " + this.references + "\n";
+				
 	}
 	
 }
