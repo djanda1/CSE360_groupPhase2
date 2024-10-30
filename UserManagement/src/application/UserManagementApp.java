@@ -117,12 +117,10 @@ public class UserManagementApp extends Application {
 		Button goBack = new Button("Go Back");
 		
 		//text fields for buttons
-		TextField createArticleInput = new TextField();
 		TextField deleteArticleInput = new TextField();
 		TextField viewArticleInput = new TextField();
 		
 		//Set prompts for text fields
-		createArticleInput.setPromptText("Enter the title of the article you wish to create");
 		deleteArticleInput.setPromptText("Enter the title of the article you wish to delete");
 		viewArticleInput.setPromptText("Enter the title of the article you wish to view");
 
@@ -140,8 +138,11 @@ public class UserManagementApp extends Application {
 			else
 				showAlert("Error", "Please enter the email you would like to reset");
 		});
+		createArticle.setOnAction(e -> createArticlePage(stage));
+		listArticles.setOnAction(e -> listArticles(stage));
 		
-		layout.getChildren().addAll(action,listArticles,createArticleInput,createArticle,deleteArticleInput,deleteArticle,viewArticleInput,viewArticle,goBack);
+		
+		layout.getChildren().addAll(action,listArticles,createArticle,deleteArticleInput,deleteArticle,viewArticleInput,viewArticle,goBack);
 		Scene scene = new Scene(layout, 500, 500);
 		stage.setScene(scene);
 		stage.show();
@@ -153,7 +154,7 @@ public class UserManagementApp extends Application {
 		layout.setPadding(new Insets(20,20,20,20));
 		
 		//text field for article text
-		TextField article = new TextField();
+		TextArea article = new TextArea();
 		article.setPromptText("Blah blah blah blah");
 		//buttons
 		Button goBack = new Button("Go Back");
@@ -178,6 +179,20 @@ public class UserManagementApp extends Application {
 		stage.setScene(scene);
 		stage.show();
 		
+	}
+	
+	private void listArticles(Stage stage)
+	{
+		ObservableList<Articles> articleList = FXCollections.observableArrayList(articles.values());
+		ListView<Articles> listview = new ListView<>(articleList);
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20,20,20,20));
+		Button goBack = new Button("Go Back");
+		goBack.setOnAction(e -> articleHomePage(stage));
+		layout.getChildren().addAll(listview, goBack);
+		Scene scene = new Scene(layout, 300, 200);
+		stage.setScene(scene);
+		stage.show();
 	}
 	
 	private void confirmDelete(Stage stage, String name, String admin) {			//confirmation of deletion page
@@ -559,6 +574,59 @@ public class UserManagementApp extends Application {
 		alert.showAndWait();
 	}
 	
+	private void createArticlePage(Stage stage)
+	{
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20,20,20,20));
+		Label prompt = new Label("Please fill out article's information: ");		//prompts to add article
+		TextField titleTf = new TextField();
+		TextField authorsTf = new TextField();
+		TextField bodyTf = new TextField();
+		TextField keywordsTf = new TextField();
+		TextField descriptionTf = new TextField();
+		TextField referencesTf = new TextField();
+		TextField groupTf = new TextField();
+		titleTf.setPromptText("Enter the title of the article");
+		authorsTf.setPromptText("Enter the author(s) of the article");
+		bodyTf.setPromptText("Enter the body of the article");
+		keywordsTf.setPromptText("Enter the keywords of the article seperated by ','");
+		descriptionTf.setPromptText("Enter the description of the article");
+		referencesTf.setPromptText("Enter the references for the article");
+		groupTf.setPromptText("Enter the group of the article");
+		Button addButt = new Button("Submit Article");
+		Button goBack = new Button("Go Back");
+		addButt.setOnAction(e -> {				//add article button action
+			String t = titleTf.getText();
+			String a = authorsTf.getText();
+			String b = bodyTf.getText();
+			String k = keywordsTf.getText();
+			String d = keywordsTf.getText();
+			String r = referencesTf.getText();
+			String g = groupTf.getText();
+			if(!t.equals("") && !a.equals("") && !b.equals("") && !k.equals("") && !d.equals("") && !r.equals("") && !g.equals(""))		//if textfields are filled out
+			{
+				Articles newArticle = new Articles(t, d, k, a, b, r, g);
+				if(articles.get(t) == null)			//if article is unique then add it to system else show error
+					articles.put(t, newArticle);
+				else
+					showAlert("Error", "This article is already in the system.");
+			}
+			
+			else
+			{
+				showAlert("Error", "Not all text fields have been filled out");
+			}
+		});
+	
+		//button actions
+		goBack.setOnAction(e ->articleHomePage(stage));
+		
+		layout.getChildren().addAll(prompt, titleTf, authorsTf, bodyTf, keywordsTf, descriptionTf, referencesTf, groupTf, addButt, goBack);
+		Scene scene = new Scene(layout, 500, 500);
+		stage.setScene(scene);
+		
+	}
+	
 	private void save()			//save database
 	{
 		try {
@@ -572,7 +640,7 @@ public class UserManagementApp extends Application {
 		      myWriter.write("users");
 		      myWriter.newLine();
 		      User temp;
-		      //Article tempA;
+		      Articles tempA;
 		      for(Map.Entry<String, User> entry : users.entrySet())		//write the users into data
 		      {
 		    	  temp = entry.getValue();
@@ -600,12 +668,26 @@ public class UserManagementApp extends Application {
 		      }
 		      myWriter.write("articles");
 		      myWriter.newLine();
-		      /*
+		      
 		      for(Map.Entry<String, Articles> entry : articles.entrySet())			//write articles into data
 		      {
 		    	  tempA = entry.getValue();
+		    	  myWriter.write(tempA.getTitle());
+		    	  myWriter.newLine();
+		    	  myWriter.write(tempA.getAuthors());
+		    	  myWriter.newLine();
+		    	  myWriter.write(tempA.getBody());
+		    	  myWriter.newLine();
+		    	  myWriter.write(tempA.getDescription());
+		    	  myWriter.newLine();
+		    	  myWriter.write(tempA.getGroup());
+		    	  myWriter.newLine();
+		    	  myWriter.write(tempA.getKeywords());
+		    	  myWriter.newLine();
+		    	  myWriter.write(tempA.getReferences());
+		    	  myWriter.newLine();
 		    	  
-		      }*/
+		      }
 		      myWriter.close();
 		    } catch (IOException e) {
 		      System.out.println("An error occurred.");
@@ -668,7 +750,22 @@ public class UserManagementApp extends Application {
 		        }
 		        while(reader.hasNextLine())
 		        {
-		        	
+		        	line = reader.nextLine();
+		        	String t = line;
+		        	line = reader.nextLine();
+		        	String a = line;
+		        	line = reader.nextLine();
+		        	String b = line;
+		        	line = reader.nextLine();
+		        	String d = line;
+		        	line = reader.nextLine();
+		        	String g = line;
+		        	line = reader.nextLine();
+		        	String k = line;
+		        	line = reader.nextLine();
+		        	String r = line;
+		        	Articles newArt = new Articles(t, d, k, a, b, r, g);
+		        	articles.put(t, newArt);
 		        }
 		        reader.close();
 		        return false;
