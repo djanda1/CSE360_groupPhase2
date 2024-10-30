@@ -607,7 +607,10 @@ public class UserManagementApp extends Application {
 			{
 				Articles newArticle = new Articles(t, d, k, a, b, r, g);
 				if(articles.get(t) == null)			//if article is unique then add it to system else show error
+				{
 					articles.put(t, newArticle);
+					save();
+				}
 				else
 					showAlert("Error", "This article is already in the system.");
 			}
