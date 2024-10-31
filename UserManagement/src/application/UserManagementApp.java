@@ -163,7 +163,14 @@ public class UserManagementApp extends Application {
 		});
 		createArticle.setOnAction(e -> createArticlePage(stage));
 		listArticles.setOnAction(e -> listArticles(stage));
-		viewByGroup.setOnAction(e -> listArticlesByGroup(stage, viewByGroupTf.getText()));
+		viewByGroup.setOnAction(e -> {
+			if(viewByGroupTf.getText() != null)	{
+			listArticlesByGroup(stage, viewByGroupTf.getText());
+			}
+			else {
+				showAlert("Error","Please enter a group");
+			}
+		});
 		
 		layout.getChildren().addAll(action,listArticles,createArticle,deleteArticleInput,deleteArticle,viewArticleInput,viewArticle, viewByGroupTf, viewByGroup, goBack);
 		Scene scene = new Scene(layout, 500, 500);
@@ -311,7 +318,7 @@ public class UserManagementApp extends Application {
 				showAlert("Error", "Admin roles cannot be removed");
 			}
 		});
-		
+		layout.getChildren().addAll(addRoleInput,addRoleButton,removeRoleInput,removeRoleButton,goBackButton);
 		Scene scene = new Scene(layout, 500, 500);
 		stage.setScene(scene);
 		stage.show();
@@ -918,6 +925,5 @@ public class UserManagementApp extends Application {
 			}
 		}
 		return groupMap;
-		
 	}
 }
