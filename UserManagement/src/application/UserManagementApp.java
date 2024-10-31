@@ -87,14 +87,14 @@ public class UserManagementApp extends Application {
 		articles.setOnAction(e-> articleHomePage(stage));
 
 		
-		updateRolesInput.setPromptText("Enter the email of the desired account to update its roles"); //update roles
+		updateRolesInput.setPromptText("Enter the username of the desired account to update its roles"); //update roles
 		updateRoles.setOnAction(e ->{
-			String email = updateRolesInput.getText();
-			User desiredUser = users.get(email);
+			String username = updateRolesInput.getText();
+			User desiredUser = users.get(username);
 			if(desiredUser != null) {
-				updateRolesPage(stage, email);
+				updateRolesPage(stage, username);
 			} else {
-				showAlert("Error", "This user does not exist, please enter a valid email");
+				showAlert("Error", "This username does not exist, please enter a valid account username");
 			}});
 		
 	    	layout.getChildren().addAll(updateRolesInput, updateRoles);
@@ -213,7 +213,7 @@ public class UserManagementApp extends Application {
 		stage.show();
 	}
 
-	private void updateRolesPage(Stage stage, String email) {		//Add or remove user roles
+	private void updateRolesPage(Stage stage, String username) {		//Add or remove user roles
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20,20,20,20));
 		
@@ -228,7 +228,7 @@ public class UserManagementApp extends Application {
 		addRoleInput.setPromptText("Enter role to add: Instructor, Student");
 		removeRoleInput.setPromptText("Enter role to remove: Instructor, Student");
 		
-		User desiredUser = users.get(email);
+		User desiredUser = users.get(username);
 		
 		goBackButton.setOnAction(e -> showAdminPage(stage, "Admin"));
 		
