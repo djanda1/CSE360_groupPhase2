@@ -94,9 +94,9 @@ public class UserManagementApp extends Application {
 			if(desiredUser != null) {
 				updateRolesPage(stage, email);
 			} else {
-				showAlert("This user does not exist, please enter a valid email");
-			});
-		}
+				showAlert("Error", "This user does not exist, please enter a valid email");
+			}});
+		
 	    	layout.getChildren().addAll(updateRolesInput, updateRoles);
 
 		
@@ -116,7 +116,7 @@ public class UserManagementApp extends Application {
 		layout.getChildren().addAll(listUsers, deleteAccountInput, deleteUsers, resetUserInput, resetUser, generatePasswordStudent, generatePasswordInstructor, generatePasswordAdmin, generatePasswordStuIns,articles,logout);
 		Scene scene = new Scene(layout, 500, 500);
 		stage.setScene(scene);
-		listUsers.setOnAction(e -> listUsers(stage));
+		listUsers.setOnAction(e ->listUsers(stage));
 
 		
 	}
@@ -239,18 +239,18 @@ public class UserManagementApp extends Application {
 				if(addedRole.equals("Student") || addedRole.equals("Instructor")) { //check if the role being added is a valid role
 					if(!desiredUser.getRoles().contains(addedRole)) { //check if user already has the desired role to add
 						desiredUser.getRoles().add(addedRole);
-						showAlert("Role successfully added");
+						showAlert("Success", "Role successfully added");
 					}
 					else {
-						showAlert("This user already has this role")
+						showAlert("Error", "This user already has this role");
 					}
 				}
 				else {
-					showAlert("Please enter a valid role to add")
+					showAlert("Error", "Please enter a valid role to add");
 				}
 			}
 			else {
-				showAlert("Admin roles can only be added through invitations")
+				showAlert("Error", "Admin roles can only be added through invitations");
 			}
 		});
 		
@@ -263,23 +263,23 @@ public class UserManagementApp extends Application {
 					if(removedRole.equals("Student") || removedRole.equals("Instructor")) { //check if the role being removed is valid
 						if(desiredUser.getRoles().contains(removedRole)) { //check if the user has the role before removing
 							desiredUser.getRoles().remove(removedRole);
-							showAlert("Role has been successfully removed");
+							showAlert("Success", "Role has been successfully removed");
 						}
 						else {
-							showAlert("This role cannot be removed as the user does not have that role.");
+							showAlert("Error", "This role cannot be removed as the user does not have that role.");
 						}
 						
 					}
 					else {
-						showAlert("Please enter a valid role to remove: Instructor, Student");
+						showAlert("Error", "Please enter a valid role to remove: Instructor, Student");
 					}
 				}
 				else {
-					showAlert("This role cannot be removed as the user only has one role.")
+					showAlert("Error", "This role cannot be removed as the user only has one role.");
 				}
 			}
 			else {
-				showAlert("Admin roles cannot be removed");
+				showAlert("Error", "Admin roles cannot be removed");
 			}
 		});
 		
