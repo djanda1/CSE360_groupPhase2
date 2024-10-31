@@ -1,3 +1,4 @@
+
 package application;
 
 public class Articles {
@@ -68,7 +69,7 @@ public class Articles {
 	{
 		return this.group;
 	}
-
+	
 	public void setBody(String body)
 	{
 		this.body = body;
