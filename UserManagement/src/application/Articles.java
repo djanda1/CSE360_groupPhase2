@@ -68,6 +68,11 @@ public class Articles {
 	{
 		return this.group;
 	}
+
+	public void setBody(String body)
+	{
+		this.body = body;
+	}
 	
 	public String toString()
 	{
