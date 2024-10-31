@@ -133,15 +133,19 @@ public class UserManagementApp extends Application {
 		Button deleteArticle = new Button("Delete");
 		Button viewArticle = new Button("View Article");
 		Button goBack = new Button("Go Back");
-		
+		Button viewByGroup = new Button("View articles by group");
 		//text fields for buttons
 		TextField deleteArticleInput = new TextField();
 		TextField viewArticleInput = new TextField();
+		TextField viewByGroupTf = new TextField();
+		
 		
 		//Set prompts for text fields
 		deleteArticleInput.setPromptText("Enter the title of the article you wish to delete");
 		viewArticleInput.setPromptText("Enter the title of the article you wish to view");
-
+		viewByGroupTf.setPromptText("Enter the group you wish to view");
+		
+		
 		//button actions
 		if(currentUser.getRoles().get(0).equals("Admin"))
 			goBack.setOnAction(e ->showAdminPage(stage, "admin"));
@@ -158,9 +162,9 @@ public class UserManagementApp extends Application {
 		});
 		createArticle.setOnAction(e -> createArticlePage(stage));
 		listArticles.setOnAction(e -> listArticles(stage));
+		viewByGroup.setOnAction(e -> listArticlesByGroup(stage, viewByGroupTf.getText()));
 		
-		
-		layout.getChildren().addAll(action,listArticles,createArticle,deleteArticleInput,deleteArticle,viewArticleInput,viewArticle,goBack);
+		layout.getChildren().addAll(action,listArticles,createArticle,deleteArticleInput,deleteArticle,viewArticleInput,viewArticle, viewByGroupTf, viewByGroup, goBack);
 		Scene scene = new Scene(layout, 500, 500);
 		stage.setScene(scene);
 		stage.show();
@@ -199,7 +203,7 @@ public class UserManagementApp extends Application {
 		
 	}
 	
-	private void listArticles(Stage stage)
+	private void listArticles(Stage stage)				//list all articles method for admin and instructor
 	{
 		ObservableList<Articles> articleList = FXCollections.observableArrayList(articles.values());
 		ListView<Articles> listview = new ListView<>(articleList);
@@ -212,8 +216,23 @@ public class UserManagementApp extends Application {
 		stage.setScene(scene);
 		stage.show();
 	}
+	
+	private void listArticlesByGroup(Stage stage, String group)		//list all articles with the same group
+	{
+		Map<String, Articles> groupMap = getArticlesByGroup(group);
+		ObservableList<Articles> articleList = FXCollections.observableArrayList(groupMap.values());
+		ListView<Articles> listview = new ListView<>(articleList);
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20,20,20,20));
+		Button goBack = new Button("Go Back");
+		goBack.setOnAction(e -> articleHomePage(stage));
+		layout.getChildren().addAll(listview, goBack);
+		Scene scene = new Scene(layout, 300, 200);
+		stage.setScene(scene);
+		stage.show();
+	}
 
-	private void updateRolesPage(Stage stage, String username) {		//Add or remove user roles
+	private void updateRolesPage(Stage stage, String username) {
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20,20,20,20));
 		
@@ -873,5 +892,21 @@ public class UserManagementApp extends Application {
 		      e.printStackTrace();
 		    }
 		return true;
+	}
+	
+	private Map<String, Articles> getArticlesByGroup(String group)
+	{
+		Map<String, Articles> groupMap = new HashMap<>();
+		Articles temp;
+		for(Map.Entry<String, Articles> entry : articles.entrySet())
+		{
+			temp = entry.getValue();
+			if(temp.getGroup().equals(group))
+			{
+				groupMap.put(temp.getTitle(), temp);
+			}
+		}
+		return groupMap;
+		
 	}
 }
