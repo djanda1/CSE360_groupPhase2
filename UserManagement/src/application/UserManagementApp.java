@@ -44,6 +44,8 @@ public class UserManagementApp extends Application {
 		Button listUsers = new Button("List Users");
 		Button deleteUsers = new Button("Delete a user");
 		TextField deleteAccountInput = new TextField();
+		Button updateRoles = new Button("Update a user's role(s)");
+		TextField updateRolesInput = new TextField();
 		Button generatePasswordStudent = new Button("Generate invite code for student");
 		Button generatePasswordInstructor = new Button("Generate invite code password for instructor");
 		Button generatePasswordAdmin = new Button("Generate invite code for admin");
@@ -83,6 +85,20 @@ public class UserManagementApp extends Application {
 			System.out.print("Invite code for both student and instructor role: " + oneTimeInstructor + "\nThis code expires 12/31/2024\n");
 		});
 		articles.setOnAction(e-> articleHomePage(stage));
+
+		
+		updateRolesInput.setPromptText("Enter the email of the desired account to update its roles"); //update roles
+		updateRoles.setOnAction(e ->{
+			String email = updateRolesInput.getText();
+			User desiredUser = users.get(email);
+			if(desiredUser != null) {
+				roleUpdatePage(stage, email);
+			} else {
+				showAlert("This user does not exist, please enter a valid email");
+			});
+		}
+	    	layout.getChildren().addAll(updateRolesInput, updateRoles);
+
 		
 		deleteAccountInput.setPromptText("Enter the username of the account desired to be deleted");
 		
@@ -101,6 +117,8 @@ public class UserManagementApp extends Application {
 		Scene scene = new Scene(layout, 500, 500);
 		stage.setScene(scene);
 		listUsers.setOnAction(e -> listUsers(stage));
+
+		
 	}
 	
 	private void articleHomePage(Stage stage)	{
@@ -194,6 +212,82 @@ public class UserManagementApp extends Application {
 		stage.setScene(scene);
 		stage.show();
 	}
+
+	private void updateRolesPage(Stage stage, String email) {		//Add or remove user roles
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20,20,20,20));
+		
+		
+		Button addRoleButton = new Button ("Add role");
+		Button removeRoleButton = new Button ("Remove role");
+		Button goBackButton = new Button("Go back");
+		
+		TextField addRoleInput = new TextField();
+		TextField removeRoleInput = new TextField();
+		
+		addRoleInput.setPromptText("Enter role to add: Instructor, Student");
+		removeRoleInput.setPromptText("Enter role to remove: Instructor, Student");
+		
+		User desiredUser = users.get(email);
+		
+		goBackButton.setOnAction(e -> showAdminPage(stage, "Admin"));
+		
+		
+		addRoleButton.setOnAction(e -> {
+			String addedRole = addRoleInput.getText();
+			if(!addedRole.equals("Admin")) { //check if the user is attempting to add an admin role without a code
+				if(addedRole.equals("Student") || addedRole.equals("Instructor")) { //check if the role being added is a valid role
+					if(!desiredUser.getRoles().contains(addedRole)) { //check if user already has the desired role to add
+						desiredUser.getRoles().add(addedRole);
+						showAlert("Role successfully added");
+					}
+					else {
+						showAlert("This user already has this role")
+					}
+				}
+				else {
+					showAlert("Please enter a valid role to add")
+				}
+			}
+			else {
+				showAlert("Admin roles can only be added through invitations")
+			}
+		});
+		
+		
+		
+		removeRoleButton.setOnAction(e -> {
+			String removedRole = removeRoleInput.getText();
+			if(!removedRole.equals("Admin")){
+				if(desiredUser.getRoles().size() > 1) { //check if the user has more than 1 role
+					if(removedRole.equals("Student") || removedRole.equals("Instructor")) { //check if the role being removed is valid
+						if(desiredUser.getRoles().contains(removedRole)) { //check if the user has the role before removing
+							desiredUser.getRoles().remove(removedRole);
+							showAlert("Role has been successfully removed");
+						}
+						else {
+							showAlert("This role cannot be removed as the user does not have that role.");
+						}
+						
+					}
+					else {
+						showAlert("Please enter a valid role to remove: Instructor, Student");
+					}
+				}
+				else {
+					showAlert("This role cannot be removed as the user only has one role.")
+				}
+			}
+			else {
+				showAlert("Admin roles cannot be removed");
+			}
+		});
+		
+		Scene scene = new Scene(layout, 500, 500);
+		stage.setScene(scene);
+		stage.show();
+	}
+
 	
 	private void confirmDelete(Stage stage, String name, String admin) {			//confirmation of deletion page
 		VBox layout = new VBox(10);
