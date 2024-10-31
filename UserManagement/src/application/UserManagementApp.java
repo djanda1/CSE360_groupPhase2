@@ -92,7 +92,7 @@ public class UserManagementApp extends Application {
 			String email = updateRolesInput.getText();
 			User desiredUser = users.get(email);
 			if(desiredUser != null) {
-				roleUpdatePage(stage, email);
+				updateRolesPage(stage, email);
 			} else {
 				showAlert("This user does not exist, please enter a valid email");
 			});
