@@ -152,13 +152,14 @@ public class UserManagementApp extends Application {
 		else if(currentUser.getRoles().get(0).equals("Instructor"))
 			goBack.setOnAction(e ->showHomePageInstructor(stage, "Instructor"));
 		viewArticle.setOnAction(e -> {
-			String name = viewArticle.getText();
-			if(!name.isEmpty())
+			String name = viewArticleInput.getText();
+			Articles articleName = articles.get(name);
+			if(articleName != null)
 			{
 				articleWindow(stage, name);
 			}
 			else
-				showAlert("Error", "Please enter the email you would like to reset");
+				showAlert("Error", "The article you entered does not exist");
 		});
 		createArticle.setOnAction(e -> createArticlePage(stage));
 		listArticles.setOnAction(e -> listArticles(stage));
@@ -174,16 +175,25 @@ public class UserManagementApp extends Application {
 		
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20,20,20,20));
+		Articles article = articles.get(ArticleName);
 		
 		//text field for article text
-		TextArea article = new TextArea();
-		article.setPromptText("Blah blah blah blah");
+		TextArea articleBody = new TextArea();
+		
+		articleBody.setText(article.getBody());
 		//buttons
 		Button goBack = new Button("Go Back");
 		Button updateArticle = new Button("Update Article");
 		//button actions
 		goBack.setOnAction(e -> articleHomePage(stage));
-		layout.getChildren().addAll(article, goBack, updateArticle);
+		updateArticle.setOnAction(e -> {
+			article.setBody(articleBody.getText());
+			save();
+			showAlert("Success", "The article has been updated");
+			articleHomePage(stage);
+		});
+		
+		layout.getChildren().addAll(articleBody, goBack, updateArticle);
 		Scene scene = new Scene(layout, 500, 500);
 		stage.setScene(scene);
 		stage.show();
@@ -723,6 +733,7 @@ public class UserManagementApp extends Application {
 				{
 					articles.put(t, newArticle);
 					save();
+					showAlert("Success!", "The article has been created.");
 				}
 				else
 					showAlert("Error", "This article is already in the system.");
