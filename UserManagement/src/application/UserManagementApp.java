@@ -134,17 +134,22 @@ public class UserManagementApp extends Application {
 		Button viewArticle = new Button("View Article");
 		Button goBack = new Button("Go Back");
 		Button viewByGroup = new Button("View articles by group");
+		Button backup = new Button("Backup all articles");
+		Button restore = new Button("Restore all articles from backup");
+		Button backupGroup = new Button("Backup Group");
+		Button restoreGroup = new Button("Restore Group");
 		//text fields for buttons
 		TextField deleteArticleInput = new TextField();
 		TextField viewArticleInput = new TextField();
 		TextField viewByGroupTf = new TextField();
-		
-		
+		TextField backupByGroup = new TextField();
+		TextField restoreByGroup = new TextField();
 		//Set prompts for text fields
+		backupByGroup.setPromptText("Enter the group you wish to backup");
 		deleteArticleInput.setPromptText("Enter the title of the article you wish to delete");
 		viewArticleInput.setPromptText("Enter the title of the article you wish to view");
 		viewByGroupTf.setPromptText("Enter the group you wish to view");
-		
+		restoreByGroup.setPromptText("Enter the group you wish to restore");
 		
 		//button actions
 		if(currentUser.getRoles().get(0).equals("Admin"))
@@ -164,7 +169,7 @@ public class UserManagementApp extends Application {
 		createArticle.setOnAction(e -> createArticlePage(stage));
 		listArticles.setOnAction(e -> listArticles(stage));
 		viewByGroup.setOnAction(e -> {
-			if(viewByGroupTf.getText() != null)	{
+			if(viewByGroupTf.getText().isEmpty())	{
 			listArticlesByGroup(stage, viewByGroupTf.getText());
 			}
 			else {
@@ -172,8 +177,37 @@ public class UserManagementApp extends Application {
 			}
 		});
 		
-		layout.getChildren().addAll(action,listArticles,createArticle,deleteArticleInput,deleteArticle,viewArticleInput,viewArticle, viewByGroupTf, viewByGroup, goBack);
-		Scene scene = new Scene(layout, 500, 500);
+		backup.setOnAction(e -> backupArticles());
+		restore.setOnAction(e -> restoreArticles());
+		deleteArticle.setOnAction(e -> {
+			String input = deleteArticleInput.getText();
+			if(articles.get(input) != null)
+			{
+				articles.remove(input);
+				showAlert("Success", "Article Successfully deleted");
+			}
+			else
+				showAlert("Error", "Article does not exist");
+		});
+		backupGroup.setOnAction(e -> {
+			String line = backupByGroup.getText();
+			if(!line.isEmpty())
+			{
+				backupByGroup(line);
+				showAlert("Success", "Successfully backed up group " + line);
+			}
+		});
+		restoreGroup.setOnAction(e ->{
+			String line = restoreByGroup.getText();
+			if(!line.isEmpty())
+			{
+				restoreByGroup(line);
+				showAlert("Success", "Successfully restored group "+ line);
+			}		
+		});
+		
+		layout.getChildren().addAll(action,listArticles,createArticle,deleteArticleInput,deleteArticle,viewArticleInput,viewArticle, viewByGroupTf, viewByGroup, backup, restore, backupByGroup, backupGroup, restoreByGroup, restoreGroup);
+		Scene scene = new Scene(layout, 500, 600);
 		stage.setScene(scene);
 		stage.show();
 	}
@@ -186,20 +220,19 @@ public class UserManagementApp extends Application {
 		
 		//text field for article text
 		TextArea articleBody = new TextArea();
-		
 		articleBody.setText(article.getBody());
+		
 		//buttons
 		Button goBack = new Button("Go Back");
 		Button updateArticle = new Button("Update Article");
-		//button actions
-		goBack.setOnAction(e -> articleHomePage(stage));
 		updateArticle.setOnAction(e -> {
 			article.setBody(articleBody.getText());
 			save();
 			showAlert("Success", "The article has been updated");
 			articleHomePage(stage);
 		});
-		
+		//button actions
+		goBack.setOnAction(e -> articleHomePage(stage));
 		layout.getChildren().addAll(articleBody, goBack, updateArticle);
 		Scene scene = new Scene(layout, 500, 500);
 		stage.setScene(scene);
@@ -232,7 +265,7 @@ public class UserManagementApp extends Application {
 		Scene scene = new Scene(layout, 300, 200);
 		stage.setScene(scene);
 		stage.show();
-	}
+	}	
 	
 	private void listArticlesByGroup(Stage stage, String group)		//list all articles with the same group
 	{
@@ -318,6 +351,7 @@ public class UserManagementApp extends Application {
 				showAlert("Error", "Admin roles cannot be removed");
 			}
 		});
+		
 		layout.getChildren().addAll(addRoleInput,addRoleButton,removeRoleInput,removeRoleButton,goBackButton);
 		Scene scene = new Scene(layout, 500, 500);
 		stage.setScene(scene);
@@ -360,7 +394,7 @@ public class UserManagementApp extends Application {
 		} else {
 			showAlert("Error", "This email does not exist, please enter a valid account email");
 		}
-		showAdminPage(stage,admin);
+		showAdminPage(stage, admin);
 	}
 	private void resetUser(Stage stage, String email)		//resets users account
 	{
@@ -741,6 +775,7 @@ public class UserManagementApp extends Application {
 					articles.put(t, newArticle);
 					save();
 					showAlert("Success!", "The article has been created.");
+					articleHomePage(stage);
 				}
 				else
 					showAlert("Error", "This article is already in the system.");
@@ -912,7 +947,7 @@ public class UserManagementApp extends Application {
 		return true;
 	}
 	
-	private Map<String, Articles> getArticlesByGroup(String group)
+	private Map<String, Articles> getArticlesByGroup(String group)		//returns a map of articles all from the same group
 	{
 		Map<String, Articles> groupMap = new HashMap<>();
 		Articles temp;
@@ -925,5 +960,175 @@ public class UserManagementApp extends Application {
 			}
 		}
 		return groupMap;
+		
+	}
+	
+	private void backupArticles()		//back up all articles
+	{
+		File myFile = new File("backup.txt");
+		try {
+			if(myFile.createNewFile())
+				System.out.println("File created with name: " + myFile.getName());
+			else
+				System.out.println("File already existed overwriting backup");
+		
+			FileWriter writer = new FileWriter("backup.txt");
+			BufferedWriter myWriter = new BufferedWriter(writer);
+			Articles tempA;
+		for(Map.Entry<String, Articles> entry : articles.entrySet())			//write articles into data
+	      {
+	    	  tempA = entry.getValue();
+	    	  myWriter.write(tempA.getTitle());
+	    	  myWriter.newLine();
+	    	  myWriter.write(tempA.getAuthors());
+	    	  myWriter.newLine();
+	    	  myWriter.write(tempA.getBody());
+	    	  myWriter.newLine();
+	    	  myWriter.write(tempA.getDescription());
+	    	  myWriter.newLine();
+	    	  myWriter.write(tempA.getGroup());
+	    	  myWriter.newLine();
+	    	  myWriter.write(tempA.getKeywords());
+	    	  myWriter.newLine();
+	    	  myWriter.write(tempA.getReferences());
+	    	  myWriter.newLine();
+	    	  
+	      }
+	      myWriter.close();
+		}
+	      catch (IOException e)
+			{
+				System.out.println("An error occurred.");
+				e.printStackTrace();
+			}
+	}
+	
+	private void backupByGroup(String group)
+	{
+		File myFile = new File(group + ".txt");			//new file with group name
+		try
+		{
+			if(myFile.createNewFile())
+				System.out.println("New backup created with name " + myFile.getName());
+			else
+				System.out.println("Backup with group " + group + " already existed overwriting withe new backup");
+			
+			FileWriter writer = new FileWriter(myFile);
+			BufferedWriter myWriter = new BufferedWriter(writer);
+			Articles tempA;
+			
+			for(Map.Entry<String, Articles> entry : articles.entrySet())			//write articles that exist in that group into backup
+		      {
+		    	  tempA = entry.getValue();
+		    	  if(tempA.getGroup().equals(group)) {
+		    		  myWriter.write(tempA.getTitle());
+		    		  myWriter.newLine();
+		    		  myWriter.write(tempA.getAuthors());
+		    		  myWriter.newLine();
+		    		  myWriter.write(tempA.getBody());
+		    		  myWriter.newLine();
+		    		  myWriter.write(tempA.getDescription());
+		    		  myWriter.newLine();
+		    		  myWriter.write(tempA.getGroup());
+		    		  myWriter.newLine();
+		    		  myWriter.write(tempA.getKeywords());
+		    		  myWriter.newLine();
+		    		  myWriter.write(tempA.getReferences());
+		    		  myWriter.newLine();
+		    	  }
+		      }
+			myWriter.close();
+		}
+		catch (IOException e)
+		{
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+	}
+	
+	private void restoreByGroup(String group)
+	{
+		File backup = new File(group + ".txt");
+		try
+		{
+			if(backup.createNewFile())		//if file didn't already exist return since you cannot restore
+			{
+				System.out.println("File does not exist");
+				return;
+			}
+			else
+			{
+				Scanner reader = new Scanner(backup);		        
+		        String line;
+		        while(reader.hasNextLine())
+		        {
+		        	line = reader.nextLine();
+		        	String t = line;
+		        	line = reader.nextLine();
+		        	String a = line;
+		        	line = reader.nextLine();
+		        	String b = line;
+		        	line = reader.nextLine();
+		        	String d = line;
+		        	line = reader.nextLine();
+		        	String g = line;
+		        	line = reader.nextLine();
+		        	String k = line;
+		        	line = reader.nextLine();
+		        	String r = line;
+		        	Articles newArt = new Articles(t, d, k, a, b, r, g);
+		        	if(articles.get(t) == null)				//only restore article if it does not already exist in real time system
+		        		articles.put(t, newArt);
+		        }
+		        reader.close();
+			}
+		}
+		catch (IOException e)
+		{
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+	}
+	
+	private void restoreArticles()		//restore articles from backup 
+	{
+		File backup = new File("backup.txt");
+		try {
+			if(backup.createNewFile())
+			{
+				System.out.println("Backup file does not exist");
+			}
+			else
+			{
+				Scanner reader = new Scanner(backup);		        
+		        String line;
+		        while(reader.hasNextLine())
+		        {
+		        	line = reader.nextLine();
+		        	String t = line;
+		        	line = reader.nextLine();
+		        	String a = line;
+		        	line = reader.nextLine();
+		        	String b = line;
+		        	line = reader.nextLine();
+		        	String d = line;
+		        	line = reader.nextLine();
+		        	String g = line;
+		        	line = reader.nextLine();
+		        	String k = line;
+		        	line = reader.nextLine();
+		        	String r = line;
+		        	Articles newArt = new Articles(t, d, k, a, b, r, g);
+		        	if(articles.get(t) == null)				//only restore article if it does not already exist in real time system
+		        		articles.put(t, newArt);
+		        }
+		        reader.close();
+			}
+		}
+		catch (IOException e)
+		{
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
 	}
 }
